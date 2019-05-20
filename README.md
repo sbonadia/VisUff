@@ -28,22 +28,11 @@ Exemplo de inicialização com dados carregados de arquivo externo:
 
 	graf.loadData();
 ```
-Exemplo de inicialização com dados carregados de arquivo externo:
-```
-    var graf = new barsGraf({
-	    width: 850,
-	    height: 400,
-	    margin: { left:40, right:180, top:40, bottom:40 },
-	    data: ,
-    });
-
-	graf.init();
-```
 ## Parâmtros de configuração
-		width: largura do gráfico
-		height: altura do gráfico;
-		data: dados que serão usados no gráfico.
-		url: caminho do arquivo de dados.
-		margin: margens do gráfico;
-		this.classAttr: atributo classe do dataset. Caso não seja atribuido, será considerado a coluna denominada "classe";
-		colors: intervalo de cores;
+	width: largura do gráfico
+	height: altura do gráfico;
+	data: dados que serão usados no gráfico.
+	url: caminho do arquivo de dados.
+	margin: margens do gráfico;
+	this.classAttr: atributo classe do dataset. Caso não seja atribuido, será considerado a coluna denominada "classe";
+	colors: intervalo de cores;
