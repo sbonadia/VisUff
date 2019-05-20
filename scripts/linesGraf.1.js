@@ -156,8 +156,8 @@ define(["d3.v5", "baseGraf"], function (d3, baseGraf) {
             }
             // this.draw();
             // this.update();
-            this.addLegend(svg)
-            .attr("transform", "translate(" + (width + margin.left + 20) + "," + 0 + ")")
+            //this.addLegend(svg)
+            //.attr("transform", "translate(" + (width + margin.left + 20) + "," + 0 + ")")
             this.addEvents(svg);
         }
         

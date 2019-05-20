@@ -16,16 +16,16 @@ requirejs(["d3.v5", "scatterGraf","barsGraf","linesGraf","linesGraf.1"], functio
         var fileName = "";
         var objGraf = {};
 
-        var inputDiv = document.createElement("div");
+        var inputDiv = document.createElement("p");
         var inputElement = document.createElement("input");
         inputElement.setAttribute("type","file");
         inputElement.setAttribute("name","name");
 
-        var selectDiv = document.createElement("div");
+        var selectDiv = document.createElement("p");
         var selectElement = document.createElement("select");
         selectElement.setAttribute("id","selectGraf");
 
-        var infoDiv = document.createElement("div");
+        var infoDiv = document.createElement("p");
         infoDiv.setAttribute("id","info");
         
         var option = document.createElement("option");
@@ -56,20 +56,22 @@ requirejs(["d3.v5", "scatterGraf","barsGraf","linesGraf","linesGraf.1"], functio
                 txt += `<b>${ props }</b> : ${ fileList[0][props] }<br/>`
             }
             fileName = fileList[0].name;
-            infos.innerHTML = txt;
+            //infos.innerHTML = txt;
         }
         function handleGraf(event) {
             //console.log(eval(this.options[this.selectedIndex].value));
             objGraf = eval(this.options[this.selectedIndex].value);
         }
         function loadGraf(event) {
-            //console.log(event, this);
-            //grafClass = this.value;
             if(document.getElementsByClassName("grafico")[0])
                 document.getElementsByClassName("grafico")[0].remove();
+
+            var w = document.getElementById("width").value*1;
+            var h = document.getElementById("height").value*1;
+
             grafTimeSeries = new objGraf({
-                width: 850,
-                height: 400,
+                width: w,
+                height: h,
                 margin: { left:40, right:180, top:40, bottom:40 },
                 //url: "data/iris.data",
                 url: "data/"+fileName,
@@ -81,11 +83,32 @@ requirejs(["d3.v5", "scatterGraf","barsGraf","linesGraf","linesGraf.1"], functio
         selectElement.addEventListener("change", handleGraf, false);
         btn.addEventListener("click", loadGraf, false);
 
-        
+        inputDiv.innerHTML = "Carregar arquivo:<br/> ";
         inputDiv.appendChild(inputElement);
+        selectDiv.innerHTML = "Selecione um tipo de gráfico: ";
         selectDiv.appendChild(selectElement);
         document.body.appendChild(selectDiv);
         document.body.appendChild(inputDiv);
+
+
+        var inputDiv = document.createElement("div");
+        var inputElement = document.createElement("input");
+        inputElement.setAttribute("type","number");
+        inputElement.setAttribute("id","width");
+        inputElement.setAttribute("value",300);
+        inputDiv.innerHTML = "Largura:";
+        inputDiv.appendChild(inputElement);
+        document.body.appendChild(inputDiv);
+
+        var inputDiv = document.createElement("div");
+        var inputElement = document.createElement("input");
+        inputElement.setAttribute("type","number");
+        inputElement.setAttribute("id","height");
+        inputElement.setAttribute("value",200);
+        inputDiv.innerHTML = "Altura:";
+        inputDiv.appendChild(inputElement);
+        document.body.appendChild(inputDiv);
+        
         document.body.appendChild(infoDiv);
         document.body.appendChild(btn);
         //<input id="file-input" type="file" name="name"  />
@@ -99,7 +122,7 @@ requirejs(["d3.v5", "scatterGraf","barsGraf","linesGraf","linesGraf.1"], functio
             url: "data/parking.csv",
             //url: "data/processed.cleveland.data",
         });
-        grafTimeSeries.loadData("drawLinesGraf");
+        grafTimeSeries.loadData();
         /**/
              
        
@@ -113,7 +136,7 @@ requirejs(["d3.v5", "scatterGraf","barsGraf","linesGraf","linesGraf.1"], functio
             //url: "data/car.data",
             //url: "data/processed.cleveland.data",
         }); 
-        grafScatter.loadData("drawScatterPlot");
+        grafScatter.loadData();
         /**/
         /** / 
         var grafBar = new barsGraf({
@@ -123,7 +146,7 @@ requirejs(["d3.v5", "scatterGraf","barsGraf","linesGraf","linesGraf.1"], functio
             url: "data/car.data",
             //url: "data/processed.cleveland.data",
         });
-        grafBar.loadData("drawBarsGraf");
+        grafBar.loadData();
         /* */
     }
     Main();
