@@ -1,0 +1,79 @@
+body {
+    font-family: Georgia, 'Times New Roman', Times, serif;
+    font-size: 13px;
+}
+
+svg {
+    position: relative;
+    margin-top: 30px;
+}
+circle {
+    /* stroke-width: 3px; */
+}
+.grafico {
+    position: relative;
+}
+.painel {
+    position: absolute;
+    border: 1px solid #f0f0f0;
+    width: 180px;
+    margin: 5px;
+    float: left;
+    padding: 5px 10px;
+    font-size: .8em;
+    top: 20px;
+    right: 0;
+    background-color: white;
+    font-family: tahoma;
+}
+.painel p {
+    margin: 0 0 5px;
+}
+
+.painel span {
+    font-weight: bold;
+}
+.controls {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+}
+.controls p {
+    width: 50%;
+    float: left;
+    margin: 0;
+}
+.enter {
+    stroke: blue;
+}
+.update {
+    stroke: green;
+}
+.exit {
+    stroke: red;
+}
+
+.setosa, .lIris-setosa, .l1 {
+    stroke:rgba(0, 0, 255, .75);
+    fill:rgba(0, 0, 255, .45);
+}
+.versicolor, .lIris-versicolor, .l2{
+    stroke:rgba(0, 255, 0, .75);
+    fill:rgba(0, 255, 0, .45);
+}
+.virginica, .lIris-virginica,.l3 {
+    stroke:rgba(255, 0, 0, .75);
+    fill:rgba(255, 0, 0, .45);
+}
+
+.line {
+    fill: none;
+    stroke: steelblue;
+    stroke-width: 1.5px;
+}
+.zoom {
+    cursor: move;
+    fill: none;
+    pointer-events: all;
+}

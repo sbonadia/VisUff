@@ -1,0 +1,353 @@
+define(["d3.v5"],function(d3){
+    class VisUff {
+        constructor(opts){
+            const  _loc = this;
+            this.id = opts.id || "id-"+ Math.floor(Math.random()*99999),
+            this.w = opts.width;
+            this.h = opts.height;
+            this.data = opts.data   || undefined;
+            this.url = opts.url     || undefined;
+            this.margin = opts.margin;
+            this.scaleX;
+            this.scaleY;
+            this.svg;
+            this.category = opts.category;
+            this.group_graf;
+            this.attributes = opts.attributes || [];
+            this.attA = 0;
+            this.attB = 0;
+            this.classAttr = opts.classAttr;
+            // if(typeof(opts.data) === "string"){
+            //     this.loadData (function(){
+            //       _loc.draw();
+            //     })
+            // } else {
+            //     _loc.draw(opts.data);
+            // }
+        }
+        
+        loadData (callback){
+            var _loc = this;
+            async function loadDataFile(url, cb) {
+                const response = await fetch(url);
+                // ## To do: interpretar o tipo de arquivo para escolher o parser
+                const content = { content: await response.text(), type:"csv" };
+                //const json = { content: await response.json(), type:"json" };
+                cb( content );
+            }
+            loadDataFile( this.url, function(c) {
+                var data;
+                switch (c.type) {
+                    case "csv":
+                        data = c.content.trim().split("\n");
+                        data = data.map((a) => {
+                            return a.split(",");
+                        });     
+                        break;
+                    case "json": // ## To do: Parser de json
+                        data = c.map((a)=> {
+                        var keys = Object.keys(a);
+                        var ret = [];
+                        for(var i=0; i< keys.length; i++){
+                            ret.push( a[ keys[ i ] ] );
+                        }
+                        return ret;
+                    })    
+                        break;
+                    default:
+                        break;
+                }
+                _loc.data = data;
+                _loc[callback]( data );
+                //return data;
+            });
+            
+        }
+        draw( ){
+            this.svg = this.addCanvas("body");
+            this.addAxis();
+            this.group_graf = this.addChartGroup();
+            
+        }
+        drawScatterPlot( ){
+            this.draw();
+            this.updateScatterPlot();
+            this.addPainelCtrl();
+            this.addPainelInfo();
+            this.addLegend( );
+        }
+        drawBarsPlot( ){
+            this.draw();
+            this.updateBarsPlot();
+            //this.addPainelCtrl();
+            //this.addPainelInfo();
+            //this.addLegend( );
+        }
+        update(){
+            this.updateScatterPlot();
+        }
+        addCanvas( tag ){
+            /**
+             * @param {string} tag - Elemento do DOM que receberá o Canvas
+             */
+            var svg = d3.select( tag )
+            .append("div")
+            .attr("id",this.id)
+            .attr("class","grafico")
+            .append("svg")
+            .attr("width",  this.w + this.margin.left + this.margin.right )
+            .attr("height", this.h + this.margin.top + this.margin.bottom );
+            return svg;
+        }
+        addChartGroup( ) {
+            var g = this.svg.append("g")
+            .attr("class","graf")
+            .attr("transform","translate(" + this.margin.left+ " " + this.margin.top +")")
+            .attr("width",  this.w - this.margin.left - this.margin.right )
+            .attr("height", this.h - this.margin.top - this.margin.bottom );
+            return g;
+        }
+        addAxis(){
+            this.svg.append("g")
+            .attr("class","_x")
+            .attr("transform","translate(" + this.margin.left + " " + (this.margin.top + this.h) +")")
+            this.svg.append("g")
+            .attr("class","_y")
+            .attr("transform","translate(" + this.margin.top+ " " + this.margin.left +")")
+        }
+        updateAxis( ) {     
+            var attA =  this.attA; 
+            var attB =  this.attB; 
+            var _arrA = this.data.map(function(a){
+                return  a[attA]*1;
+            });
+            var _arrB = this.data.map(function(a){
+                return  a[attB]*1;
+            });
+            /**
+             * Extrai os dados de min-max dos atributos A e B selecionados
+             * @param {Object} boundary
+             * @param {Array} boundary.min
+             * @param {number} boundary.min[0] - min do Eixo X
+             * @param {number} boundary.min[1] - min do Eixo Y
+             * @param {number} boundary.max[0] - max do Eixo X
+             * @param {number} boundary.max[1] - max do Eixo Y
+             */
+            var boundary = {
+                min: [ d3.min(_arrA), d3.min(_arrB) ],
+                max: [ d3.max(_arrA), d3.max(_arrB) ]
+            }
+            //console.log( boundary );
+            this.scaleX = d3.scaleLinear().domain([boundary.min[0], boundary.max[0]]).range([ 0, this.w ]);
+            this.scaleY = d3.scaleLinear().domain([boundary.min[1], boundary.max[1]]).range([ this.h, 0  ]);
+
+            var xAxis = d3.axisBottom().scale(this.scaleX);
+            var yAxis = d3.axisLeft().scale(this.scaleY);
+            var xAxisGroup = this.svg.select("g._x");
+            var yAxisGroup = this.svg.select("g._y");
+            xAxisGroup.call(xAxis);
+            yAxisGroup.call(yAxis);
+        }
+        updateScatterPlot() {
+            this.updateAxis(  );
+            this.addCircles(  )
+        }
+        updateBarsPlot() {
+            this.updateAxis(  );
+            this.addBars(  )
+        }
+        addPainelCtrl( ) {
+            var painel = d3.select('div#'+this.id)
+            .append('div')
+            .attr("class","controls");
+            this.addControls("attA", painel);
+            this.addControls("attB", painel);
+        }
+        addControls(crtl, target){
+            var _loc = this;
+            var select = target.append('p')
+            select.append("label").text(crtl == "attA" ? "Eixo X: " : "Eixo Y: ");
+            select.append('select')
+            .attr('class', crtl)
+            .on('change', () => {
+                var selectValue = d3.select('div#'+this.id+' select.'+crtl).property('selectedIndex');
+                _loc[crtl] = selectValue;
+                _loc.update();
+            }).selectAll('option')
+            .data(_loc.labels).enter()
+            .append('option')
+            .text((d) =>  d );
+            return select;
+        }
+        addPainelInfo(){
+            var t = d3.transition()
+                .duration(1000);
+            var painel = d3.select('div#' + this.id)
+            .append('div')
+            .style("opacity",0)
+            .attr('class','painel');
+            painel.append('h3')
+            .text('Informações:');
+            this.attributes.forEach((el,i) => {
+                painel.append('p')
+                .text(el + ": ")
+                .append('span')
+                .attr('class','att'+i)
+            });
+        }
+        addCircles( ) {
+            var t = d3.transition()
+                .duration(1000);
+            var _loc = this;
+            var plot = this.group_graf;
+            //var labels = Object.keys(this.category);
+            var myColor = function(d) {
+                try {
+                    return _loc.category[d[_loc.classAttr]].color
+                } catch(error) {
+                    return "#003366";
+                }
+            }; 
+            plot.selectAll("circle")
+            .data( this.data )
+            .transition(t)
+            .attr("cx", (d) => this.scaleX(d[this.attA]))
+            .attr("cy", (d) => this.scaleY(d[this.attB]))
+            .attr("r", (i) => 5)
+            .attr("fill", (d) => myColor(d))
+            .attr("color", (d) => d[this.classAttr])
+            .attr('stroke-width',1)
+            .attr("stroke", (d) => (d) => myColor(d) ) 
+            //.attr("class",(d) => "l" + d[this.classAttr])
+            
+            plot.selectAll("circle")
+            .data( this.data )
+            .enter()
+            .append("circle")
+            .style("opacity",0)
+            .attr("cx", (d) => this.scaleX(d[this.attA]))
+            .attr("cy", (d) => this.scaleY(d[this.attB]))
+            .attr("r", (i) => 5)
+            .attr("fill", (d) => myColor(d))
+            .attr('stroke-width',1)
+            .attr("stroke", (d) => myColor(d) ) 
+            //.attr("class",(d) => "l" + d[this.classAttr])
+            .transition(t)
+            .style("opacity",1);
+            this.addEvents(plot);
+        }
+        addBars( ) {
+            var t = d3.transition()
+                .duration(1000);
+            var _loc = this;
+            var plot = this.group_graf;
+            //var labels = Object.keys(this.category);
+            var myColor = function(d) {
+                try {
+                    return _loc.category[d[_loc.classAttr]].color
+                } catch(error) {
+                    return "#003366";
+                }
+            }; 
+            // plot.selectAll("rect")
+            // .data( this.data )
+            // .transition(t)
+            // .attr("cx", (d) => this.scaleX(d[this.attA]))
+            // .attr("cy", (d) => this.scaleY(d[this.attB]))
+            // .attr("r", (i) => 5)
+            // .attr("fill", (d) => myColor(d))
+            // .attr("color", (d) => d[this.classAttr])
+            // .attr('stroke-width',1)
+            // .attr("stroke", (d) => (d) => myColor(d) ) 
+            //.attr("class",(d) => "l" + d[this.classAttr])
+            
+            plot.selectAll("rect")
+            .data( this.data )
+            .enter()
+            .append("rect")
+            .style("opacity",0);
+
+            var nRects = plot.selectAll("rect").size();
+            var wRect = _loc.w / nRects;
+
+            plot
+            .attr("x", (d ,i) => i* (wRect) )
+            .attr("y", (d) => this.h + this.margin.bottom - this.scaleX(d[this.attA]))
+            .attr("height", 300)
+            .attr("width", _loc.w / plot.selectAll("rect").size())
+            //.attr("style","fill:"+this.category[labels[i]].color)
+            // .attr("fill", (d) => myColor(d))
+            // .attr('stroke-width',1)
+            // .attr("stroke", (d) => myColor(d) ) 
+            //.attr("class",(d) => "l" + d[this.classAttr])
+            .transition(t)
+            .style("opacity",1);
+            this.addEvents(plot);
+        }
+        addLegend( ) {
+            var legend = this.svg
+            .append('g')
+            .attr("class", "legend")
+            .attr("x", this.w - 60)
+            .attr("y", 10)
+            .attr("height", 300)
+            .attr("width", 100);
+
+
+            var labels = Object.keys(this.category);
+            for( var i=0; i< labels.length; i++ ) {
+                legend.append('rect')
+                .attr("x", this.w + this.margin.right - 45)
+                .attr("y", this.h + i*20 - 20 )
+                .attr("height", 10)
+                .attr("width", 10)
+                .attr("style","fill:"+this.category[labels[i]].color);
+                //console.log(this.category[props]);
+                legend.append('text').text(this.category[labels[i]].title)
+                .attr("x", this.w + this.margin.right - 30)
+                .attr("y", this.h + i*20 -   10 )
+                .attr("height", 10)
+                .attr("width", 10)
+                ;
+            }
+        }
+        addEvents(trg){
+            var _loc = this;
+            trg.selectAll('circle')
+            .on("click", function(d) {
+                // var painel = d3.select('div#' + _loc.id +" .painel");
+                // _loc.labels.forEach(( el, i ) => {
+                //     painel.select('.att'+i).text(d[i]);                  
+                // });
+                // painel.style("opacity",1);
+            })
+            .on("mouseover", function(d) {
+                d3.select(this)
+                .attr('stroke-width',3)
+                .attr("stroke", (d) => _loc.category[d[_loc.classAttr]].color );
+                var painel = d3.select('div#' + _loc.id +" .painel");
+                _loc.labels.forEach(( el, i ) => {
+                    painel.select('.att'+i).text(d[i]);                  
+                });
+                //painel.transition(t)
+                painel.style("opacity",1);
+            })
+            .on("mouseout", function(d) {
+                d3.select(this)
+                .attr('stroke-width',1)
+                .attr("stroke", (d) => _loc.category[d[_loc.classAttr]].color );
+                var painel = d3.select('div#' + _loc.id +" .painel");
+                _loc.labels.forEach(( el, i ) => {
+                    painel.select('.att'+i).text("");                  
+                });
+                //painel.transition(t)
+                painel.style("opacity",0);
+            })
+        }
+        UserException(message) {
+            this.message = message;
+            this.name = "UserException";
+         }
+    }
+    return VisUff;
+});
