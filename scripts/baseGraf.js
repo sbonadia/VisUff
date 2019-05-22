@@ -35,6 +35,12 @@ define(["d3.v5"], function (d3) {
         }
         draw(trg = "body") {
             this.svg = this.addCanvas(trg);
+            this.svg.append("defs").append("clipPath")
+                .attr("id", "clip")
+                .append("rect")
+                .attr("width", this.w)
+                .attr("height", this.h)
+                //.attr("transform", "translate(" + this.margin.left + " " + this.margin.top + ")")
             this.chartGroup = this.addChartGroup(this.svg);
             this.addAxis(this.svg);
             return this.svg;
@@ -52,6 +58,7 @@ define(["d3.v5"], function (d3) {
         addChartGroup(svg) {
             var g = svg.append("g")
                 .attr("class", "graf")
+                .attr("clip-path", "url(#clip)")
                 .attr("transform", "translate(" + this.margin.left + " " + this.margin.top + ")")
                 .attr("width", this.w - this.margin.left - this.margin.right)
                 .attr("height", this.h - this.margin.top - this.margin.bottom);
@@ -61,30 +68,32 @@ define(["d3.v5"], function (d3) {
             svg.append("g")
                 .attr("class", "_x")
                 .attr("transform", "translate(" + this.margin.left + " " + (this.margin.top + this.h) + ")")
+                //.append("text")
+                // .attr("transform", "translate(" + 0 + " " + 0 + ")")
+                // .text("");
             svg.append("g")
                 .attr("class", "_y")
-                .attr("transform", "translate(" + this.margin.top + " " + this.margin.left + ")")
+                .attr("transform", "translate(" + this.margin.top + " " + this.margin.left + ")")   
+                // .append("text")
+                // .attr("transform", "rotate(-90) translate(" + 0 + " " + 0 + ")")
+                // .text("");
         }
         updateAxis(svg) {
             var data_attA = this.data_attA;
             var data_attB = this.data_attB;
-            var _arrA = this.data.map(function (a) {
-                return a[data_attA] * 1;
-            });
-            var _arrB = this.data.map(function (a) {
-                return a[data_attB] * 1;
-            });
-            var boundary = {
-                min: [d3.min(_arrA), d3.min(_arrB)],
-                max: [d3.max(_arrA), d3.max(_arrB)]
-            }
-            this.scaleX = d3.scaleLinear().domain([boundary.min[0], boundary.max[0]]).range([0, this.w]);
-            this.scaleY = d3.scaleLinear().domain([boundary.min[1], boundary.max[1]]).range([this.h, 0]);
 
-            var xAxis = d3.axisBottom().scale(this.scaleX);
-            var yAxis = d3.axisLeft().scale(this.scaleY);
+            var dataXrange = d3.extent(this.data, function(d) { return d[data_attA] * 1; })
+            var dataYrange = d3.extent(this.data, function(d) { return d[data_attB] * 1; })
+
+            this.scaleX = d3.scaleLinear().domain(dataXrange).range([0, this.w]);
+            this.scaleY = d3.scaleLinear().domain(dataYrange).range([this.h, 0]);
+
+            var xAxis = d3.axisBottom(this.scaleX);
+            var yAxis = d3.axisLeft(this.scaleY);
+
             var xAxisGroup = svg.select("g._x");
             var yAxisGroup = svg.select("g._y");
+            
             xAxisGroup.call(xAxis);
             yAxisGroup.call(yAxis);
         }
@@ -113,13 +122,16 @@ define(["d3.v5"], function (d3) {
                 .on('change', () => {
                     var selectValue = d3.select('div#' + this.id + ' select.' + crtl).property('value');
                     this[crtl] = selectValue;
-                    this.update();
+                    this.updateData();
                 }).selectAll('option')
                 .data(this.attributes).enter()
                 .append('option')
                 .text((d) => d);
             return select;
         }
+
+
+
         groupByAttr(_array) {
             var _loc = this;
             var _obj = {};

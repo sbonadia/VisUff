@@ -6,7 +6,7 @@ define(["d3.v5", "baseGraf"], function (d3, baseGraf) {
             this.w = opts.width;
             this.h = opts.height;
             this.data = opts.data || undefined;
-            this.url = opts.url || undefined;
+            this.url = opts.url || "data/parking.csv";
             this.margin = opts.margin;
             this.scaleX;
             this.scaleY;
@@ -22,7 +22,8 @@ define(["d3.v5", "baseGraf"], function (d3, baseGraf) {
             //this.parseDateFormat (data);
             this.data_attA = this.data.columns[0];
             this.data_attB = null;
-            this.draw();
+                
+            this.draw("div.container");
             this.update();
             this.addLegend(this.svg);
             this.addEvents(this.svg);
