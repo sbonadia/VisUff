@@ -38,3 +38,16 @@ Exemplo de inicialização com dados carregados de arquivo externo:
 	margin: margens do gráfico;
 	this.classAttr: atributo classe do dataset. Caso não seja atribuido, será considerado a coluna denominada "classe";
 	colors: intervalo de cores;
+
+## toFix
+### ScatterGraf
+- Corrigir de resize do brush após o evento zoom
+## BarsGraf
+- Corregir de zoom
+## LinesGraf
+- Ajustar de precisão do brush
+
+## toDo
+- Refatorar todo a aplicação para melhorar legibilidade
+- Comentar o código
+- Melhorar Abstração dos componentes BarsGraf e LinesGraf, para carregar diferentes datasets

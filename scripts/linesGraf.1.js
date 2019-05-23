@@ -48,7 +48,7 @@ define(["d3.v5", "baseGraf"], function (d3, baseGraf) {
             xAxis2 = d3.axisBottom(x2),
             yAxis = d3.axisLeft(y);
 
-            var brush_fn = this.addBrush(width, height, brushed, endbrushed);
+            var brush_fn = this.addBrush(width, height2, brushed, endbrushed);
             var zoom_fn = this.addZoom(width, height, zoomed);
             var line_fn = this.addLine_fn(x, y);
             var line2_fn = this.addLine_fn(x2, y2);
@@ -121,6 +121,7 @@ define(["d3.v5", "baseGraf"], function (d3, baseGraf) {
                 .call(zoom_fn);
 
             function endbrushed() {
+                if (!d3.event.selection) return;
                 var s = d3.event.selection;
                 var d_brushed =  d3.select('.context').select("path").datum()
                 .filter((d)=> {
@@ -142,8 +143,7 @@ define(["d3.v5", "baseGraf"], function (d3, baseGraf) {
                 
                 //d3.select(this).call(this.brush.move, null);
                
-            }
-              
+            }             
             function zoomed() {
                 if (d3.event.sourceEvent && d3.event.sourceEvent.type === "brush") return; // ignore zoom-by-brush
                 var t = d3.event.transform;
