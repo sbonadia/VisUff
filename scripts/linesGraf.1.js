@@ -210,10 +210,10 @@ define(["d3.v5", "baseGraf"], function (d3, baseGraf) {
                 .append("tr")
             thead.append("th")
                 .attr("scope","col")
-                .text(this.attributes[1])
+                .text("Data/Hora")
             thead.append("th")
                 .attr("scope","col")
-                .text(this.attributes[0])
+                .text("taxa de ocupação")
         }
         removeTableRows() {
             //hideTableColNames();
@@ -228,8 +228,8 @@ define(["d3.v5", "baseGraf"], function (d3, baseGraf) {
             }
         }
         drawTableRows(n, d_row){
-            var d_row_filter = [    d_row.dateConverted, 
-                                    d_row.occTx*100
+            var d_row_filter = [    d3.timeFormat("%d.%m.%Y %H:%M")(d_row.dateConverted), 
+                                    Math.floor(d_row.occTx*1000)/10
                                 ];
 
             var table = d3.select("table")
