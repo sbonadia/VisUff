@@ -1,5 +1,7 @@
 # VisUFF
 Projeto para geração de gráficos. Desenvolvido com biblioteca D3, versão 5. 
+
+Acesso ao demo: https://sbonadia.github.io/VisUff/index.html
 ## Tipos de gráficos
 Os tipos de gráficos previstos no projetos são:
 - ScatterPlot
@@ -28,7 +30,7 @@ Exemplo de inicialização com dados carregados de arquivo externo:
 
 	graf.loadData();
 ```
-## Parâmtros de configuração
+## Parâmetros de configuração
 	width: largura do gráfico
 	height: altura do gráfico;
 	data: dados que serão usados no gráfico.
